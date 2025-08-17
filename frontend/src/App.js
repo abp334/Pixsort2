@@ -9,6 +9,7 @@ import SignupPage from "./pages/SignupPage";
 import UploadPage from "./pages/UploadPage";
 import MarketplacePage from "./pages/MarketplacePage";
 import MyImagesPage from "./pages/MyImagePage";
+import PaymentPage from "./pages/PaymentPage"; // --- IMPORT NEW PAGE ---
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -37,6 +38,15 @@ function App() {
               element={
                 <PrivateRoute>
                   <MyImagesPage />
+                </PrivateRoute>
+              }
+            />
+            {/* --- NEW ROUTE FOR PAYMENT --- */}
+            <Route
+              path="/payment/:imageId"
+              element={
+                <PrivateRoute>
+                  <PaymentPage />
                 </PrivateRoute>
               }
             />

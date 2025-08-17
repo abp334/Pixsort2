@@ -1,6 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
-const ImageCard = ({ image, isMarketplace, onList, onBuy }) => {
+const ImageCard = ({ image, isMarketplace, onList, onBuy, onDelete }) => {
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const navigate = useNavigate();
+
   const listForSaleHandler = () => {
     const price = prompt(`Enter price for "${image.title}":`);
     if (price && !isNaN(price) && Number(price) > 0) {
@@ -11,14 +16,18 @@ const ImageCard = ({ image, isMarketplace, onList, onBuy }) => {
   };
 
   const buyHandler = () => {
-    if (
-      window.confirm(
-        `Are you sure you want to buy "${image.title}" for $${image.price}?`
-      )
-    ) {
-      onBuy(image._id);
+    // Navigate to the payment page, passing image data in the state
+    navigate(`/payment/${image._id}`, { state: { image } });
+  };
+
+  const deleteHandler = () => {
+    if (window.confirm(`Are you sure you want to delete "${image.title}"?`)) {
+      onDelete(image._id);
     }
   };
+
+  // Check if the currently logged-in user is the original creator of the image
+  const isCreator = userInfo && userInfo._id === image.user._id;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl group">
@@ -34,7 +43,7 @@ const ImageCard = ({ image, isMarketplace, onList, onBuy }) => {
           {image.title}
         </h3>
         <p className="text-sm text-gray-500">
-          By: {image.user?.username || "You"}
+          By: {image.user?.username || "Unknown"}
         </p>
         <div className="mt-2 h-12 flex-grow">
           {image.overallCategories?.slice(0, 3).map((cat) => (
@@ -50,28 +59,58 @@ const ImageCard = ({ image, isMarketplace, onList, onBuy }) => {
           {isMarketplace ? (
             <div className="flex justify-between items-center">
               <p className="text-xl font-bold text-gray-900">${image.price}</p>
-              <button
-                onClick={buyHandler}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors"
-              >
-                Buy
-              </button>
+              {isCreator ? (
+                // If the user is the creator, show a delete button on the marketplace
+                <button
+                  onClick={deleteHandler}
+                  className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                  aria-label="Delete image"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </button>
+              ) : (
+                // If not the creator, show the buy button
+                <button
+                  onClick={buyHandler}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors"
+                >
+                  Buy
+                </button>
+              )}
             </div>
-          ) : image.forSale ? (
-            <div className="text-center text-green-600 font-semibold">
-              Listed for Sale at ${image.price}
-            </div>
+          ) : isCreator ? (
+            // On the "My Images" page, if the user is the creator
+            image.forSale ? (
+              <div className="text-center text-green-600 font-semibold">
+                Listed for Sale at ${image.price}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={listForSaleHandler}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors"
+                >
+                  List for Sale
+                </button>
+                <button
+                  onClick={deleteHandler}
+                  className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                  aria-label="Delete image"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </button>
+              </div>
+            )
           ) : (
-            <button
-              onClick={listForSaleHandler}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors"
-            >
-              List for Sale
-            </button>
+            // On the "My Images" page, if the user bought the image
+            <div className="text-center text-gray-500 font-semibold">
+              In Your Collection
+            </div>
           )}
         </div>
       </div>
     </div>
   );
 };
+
 export default ImageCard;

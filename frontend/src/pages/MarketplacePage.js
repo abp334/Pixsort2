@@ -4,6 +4,7 @@ import axios from "axios";
 import SkeletonCard from "../components/SkeletonCard";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import ImageCard from "../components/ImageCard";
+
 const MarketplacePage = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +15,7 @@ const MarketplacePage = () => {
     setLoading(true);
     setError("");
     try {
+      // --- MODIFIED: Populate the user's ID for ownership check ---
       const { data } = await axios.get(
         `/api/marketplace/search?query=${searchQuery}`
       );
@@ -37,6 +39,18 @@ const MarketplacePage = () => {
       fetchMarketplaceImages(query); // Refresh list
     } catch (err) {
       alert(err.response?.data?.message || "Purchase failed.");
+    }
+  };
+
+  // --- NEW: Handler for deleting an image from the marketplace ---
+  const deleteImageHandler = async (imageId) => {
+    try {
+      const { token } = JSON.parse(localStorage.getItem("userInfo"));
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.delete(`/api/marketplace/${imageId}`, config);
+      fetchMarketplaceImages(query); // Refresh the list after deletion
+    } catch (err) {
+      alert(err.response?.data?.message || "Could not delete the image.");
     }
   };
 
@@ -86,6 +100,7 @@ const MarketplacePage = () => {
               image={image}
               isMarketplace={true}
               onBuy={buyImageHandler}
+              onDelete={deleteImageHandler} // --- PASS THE DELETE HANDLER ---
             />
           ))
         ) : (
