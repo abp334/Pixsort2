@@ -48,7 +48,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center space-x-2">
               <PhotoIcon className="h-8 w-8 text-indigo-600" />
-              <span className="text-2xl font-bold text-gray-800">AIPix</span>
+              <span className="text-2xl font-bold text-gray-800">Pixsort</span>
             </Link>
           </div>
           <div className="hidden md:flex items-center space-x-4">
