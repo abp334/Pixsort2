@@ -1,0 +1,42 @@
+# General
+.DS_Store
+*.log
+*.tmp
+*.swp
+
+# Node.js / Backend & Frontend
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+frontend/node_modules/
+backend/node_modules/
+.venv/
+# Python / marketplace_service
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+*.sqlite3
+*.db
+
+# Build artifacts
+build/
+dist/
+.next/
+.nuxt/
+.out/
+
+# IDE specific
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

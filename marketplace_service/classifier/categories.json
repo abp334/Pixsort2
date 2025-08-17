@@ -1,0 +1,21 @@
+{
+  "People": ["person.n.01"],
+  "Nature": [
+    "organism.n.01",
+    "natural_object.n.01",
+    "geological_formation.n.01"
+  ],
+  "Food": ["food.n.01"],
+  "Vehicles": ["vehicle.n.01", "helicopter.n.01"],
+  "Buildings": [
+    "building.n.01",
+    "structure.n.01",
+    "skyscraper.n.01",
+    "city.n.01",
+    "urban_area.n.01"
+  ],
+  "Technology": ["device.n.01", "instrumentality.n.03"],
+  "Household": ["furnishing.n.01", "appliance.n.01", "home_appliance.n.01"],
+  "Clothing": ["clothing.n.01"],
+  "Sports": ["sport.n.01"]
+}
