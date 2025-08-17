@@ -17,10 +17,10 @@ package-lock.json
 frontend/node_modules/
 backend/node_modules/
 .venv/
-deploy.prototxt
-image.png
-res10_300x300_ssd_iter_140000.caffemodel
-yolov8n.pt
+Pixsort/deploy.prototxt
+Pixsort/image.png
+Pixsort/res10_300x300_ssd_iter_140000.caffemodel
+Pixsort/yolov8n.pt
 # Python / marketplace_service
 __pycache__/
 *.py[cod]
