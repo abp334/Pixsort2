@@ -1,18 +1,31 @@
-# Pixsort - AI-Powered Image Marketplace
+<p align="center">
+  <img src="https://i.imgur.com/your_banner_image.png" alt="Pixsort Banner" width="800"/>
+</p>
 
-
+<h1 align="center">Pixsort - AI-Powered Image Marketplace</h1>
 
 <p align="center">
   <strong>Upload your images, have them automatically categorized by a powerful AI, and sell them on a vibrant, modern marketplace.</strong>
 </p>
 
 <p align="center">
-  <a href="#key-features">Key Features</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#architecture">Architecture</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#license">License</a>
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
+    <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js">
+    <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+    <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
 </p>
+
+## 📋 Table of Contents
+
+- [🌟 Key Features](#-key-features)
+- [📸 Screenshots](#-screenshots)
+- [💻 Tech Stack](#-tech-stack)
+- [🏗️ Architecture](#️-architecture)
+- [🚀 Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation & Setup](#installation--setup)
+- [📜 License](#-license)
 
 ---
 
@@ -27,6 +40,16 @@ Pixsort is a full-stack application built with a modern microservices architectu
 -   **Personalized Collections**: View your own uploaded and purchased images in a private gallery.
 -   **Responsive UI with Dark/Light Mode**: A sleek and modern interface built with Tailwind CSS that looks great on all devices and includes a theme toggle.
 -   **Animated Statistics**: The homepage features animated counters showcasing the platform's usage statistics, which are fetched live from the database.
+
+---
+
+## 📸 Screenshots
+
+*(Add your screenshots here. You can drag and drop images directly into the GitHub editor.)*
+
+| Light Mode | Dark Mode |
+| :---: | :---: |
+| <img src="https://i.imgur.com/your_light_mode_screenshot.png" alt="Light Mode" width="400"> | <img src="https://i.imgur.com/your_dark_mode_screenshot.png" alt="Dark Mode" width="400"> |
 
 ---
 
