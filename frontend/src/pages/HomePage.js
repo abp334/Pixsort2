@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import {
   CloudArrowUpIcon,
   MagnifyingGlassIcon,
   CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
+import StatsCounter from "../components/StatsCounter"; // Import the new component
 
 const Feature = ({ icon, title, children }) => (
   <div className="text-center">
@@ -21,6 +23,28 @@ const Feature = ({ icon, title, children }) => (
 );
 
 const HomePage = () => {
+  const [stats, setStats] = useState({
+    imagesUploaded: 0,
+    imagesTraded: 0,
+    usersRegistered: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data } = await axios.get("/api/stats");
+        setStats(data);
+      } catch (error) {
+        console.error("Could not fetch stats", error);
+        // If there's an error, the stats will remain at their initial state of 0.
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <>
       <div className="relative bg-white dark:bg-gray-900">
@@ -69,6 +93,35 @@ const HomePage = () => {
           />
         </div>
       </div>
+
+      {/* --- Stats Section --- */}
+      <div className="bg-white dark:bg-gray-900 py-12 sm:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {loading ? (
+              <p className="text-center col-span-3 dark:text-gray-300">
+                Loading stats...
+              </p>
+            ) : (
+              <>
+                <StatsCounter
+                  target={stats.imagesUploaded}
+                  label="Images Uploaded"
+                />
+                <StatsCounter
+                  target={stats.imagesTraded}
+                  label="Images Traded"
+                />
+                <StatsCounter
+                  target={stats.usersRegistered}
+                  label="Users Registered"
+                />
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="py-24 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
