@@ -45,7 +45,6 @@ Pixsort is a full-stack application built with a modern microservices architectu
 
 ## 📸 Screenshots
 
-*(Add your screenshots here. You can drag and drop images directly into the GitHub editor.)*
 
 | Light Mode | Dark Mode |
 | :---: | :---: |
