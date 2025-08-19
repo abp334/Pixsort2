@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://ibb.co/Ld70rtcY" alt="Pixsort Banner" width="800"/>
+  <a href="https://ibb.co/Ld70rtcY"><img src="https://i.ibb.co/Ld70rtcY/ss.png" alt="ss" border="0"></a>
 </p>
 
 <h1 align="center">Pixsort - AI-Powered Image Marketplace</h1>
