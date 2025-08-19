@@ -30,7 +30,7 @@ const ImageCard = ({ image, isMarketplace, onList, onBuy, onDelete }) => {
   const isCreator = userInfo && userInfo._id === image.user._id;
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl group">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl group dark:bg-gray-800 dark:border-gray-700">
       <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden">
         <img
           src={image.imageUrl}
@@ -39,26 +39,28 @@ const ImageCard = ({ image, isMarketplace, onList, onBuy, onDelete }) => {
         />
       </div>
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className="font-bold text-lg text-gray-800 truncate">
+        <h3 className="font-bold text-lg text-gray-800 truncate dark:text-white">
           {image.title}
         </h3>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           By: {image.user?.username || "Unknown"}
         </p>
         <div className="mt-2 h-12 flex-grow">
           {image.overallCategories?.slice(0, 3).map((cat) => (
             <span
               key={cat}
-              className="inline-block bg-gray-200 text-gray-800 text-xs font-semibold mr-2 mb-2 px-2.5 py-0.5 rounded-full"
+              className="inline-block bg-gray-200 text-gray-800 text-xs font-semibold mr-2 mb-2 px-2.5 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300"
             >
               {cat}
             </span>
           ))}
         </div>
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           {isMarketplace ? (
             <div className="flex justify-between items-center">
-              <p className="text-xl font-bold text-gray-900">${image.price}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">
+                ${image.price}
+              </p>
               {isCreator ? (
                 // If the user is the creator, show a delete button on the marketplace
                 <button
@@ -81,7 +83,7 @@ const ImageCard = ({ image, isMarketplace, onList, onBuy, onDelete }) => {
           ) : isCreator ? (
             // On the "My Images" page, if the user is the creator
             image.forSale ? (
-              <div className="text-center text-green-600 font-semibold">
+              <div className="text-center text-green-600 font-semibold dark:text-green-400">
                 Listed for Sale at ${image.price}
               </div>
             ) : (
@@ -103,7 +105,7 @@ const ImageCard = ({ image, isMarketplace, onList, onBuy, onDelete }) => {
             )
           ) : (
             // On the "My Images" page, if the user bought the image
-            <div className="text-center text-gray-500 font-semibold">
+            <div className="text-center text-gray-500 font-semibold dark:text-gray-400">
               In Your Collection
             </div>
           )}

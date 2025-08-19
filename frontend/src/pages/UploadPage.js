@@ -59,8 +59,8 @@ const UploadPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4">
-      <div className="bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+      <div className="bg-white p-8 rounded-lg shadow-md dark:bg-gray-800">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 dark:text-white">
           Upload New Image
         </h1>
         {error && (
@@ -75,7 +75,7 @@ const UploadPage = () => {
           <div>
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Image Title
             </label>
@@ -86,15 +86,15 @@ const UploadPage = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
               placeholder="e.g., Sunset over the mountains"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Image File
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md dark:border-gray-600">
               <div className="space-y-1 text-center">
                 {preview ? (
                   <img
@@ -105,10 +105,10 @@ const UploadPage = () => {
                 ) : (
                   <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
                 )}
-                <div className="flex text-sm text-gray-600">
+                <div className="flex text-sm text-gray-600 dark:text-gray-400">
                   <label
                     htmlFor="file-upload"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                    className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 dark:bg-gray-700 dark:text-indigo-400"
                   >
                     <span>Upload a file</span>
                     <input
@@ -122,7 +122,7 @@ const UploadPage = () => {
                   </label>
                   <p className="pl-1">or drag and drop</p>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   PNG, JPG, GIF up to 10MB
                 </p>
               </div>

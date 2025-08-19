@@ -11,26 +11,30 @@ const Feature = ({ icon, title, children }) => (
     <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-500 text-white">
       {icon}
     </div>
-    <h3 className="mt-4 text-lg font-semibold text-gray-900">{title}</h3>
-    <p className="mt-2 text-base text-gray-600">{children}</p>
+    <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+      {title}
+    </h3>
+    <p className="mt-2 text-base text-gray-600 dark:text-gray-300">
+      {children}
+    </p>
   </div>
 );
 
 const HomePage = () => {
   return (
     <>
-      <div className="relative bg-white">
+      <div className="relative bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+          <div className="relative z-10 pb-8 bg-white dark:bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
             <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
               <div className="sm:text-center lg:text-left">
-                <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl dark:text-white">
                   <span className="block xl:inline">AI-Powered Image</span>{" "}
                   <span className="block text-indigo-600 xl:inline">
                     Marketplace
                   </span>
                 </h1>
-                <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0 dark:text-gray-300">
                   Upload your images, let our AI categorize them instantly, and
                   start selling on our vibrant marketplace. Discover unique
                   content from creators around the world.
@@ -65,13 +69,13 @@ const HomePage = () => {
           />
         </div>
       </div>
-      <div className="py-24 bg-gray-50">
+      <div className="py-24 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase">
+            <h2 className="text-base font-semibold text-indigo-600 tracking-wider uppercase dark:text-indigo-400">
               How it works
             </h2>
-            <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">
+            <p className="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl dark:text-white">
               A smarter way to manage and sell your photos
             </p>
           </div>
