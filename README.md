@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://imgbb.com/"><img src="https://i.ibb.co/1GW0MqP7/ss.png" alt="ss" border="0"></a>
+  <a href='https://postimg.cc/dDGC59s7' target='_blank'><img src='https://i.postimg.cc/dDGC59s7/temp-Image-FGa-ZGJ.avif' border='0' alt='temp-Image-FGa-ZGJ'/></a>
 </p>
 
 <h1 align="center">Pixsort - AI-Powered Image Marketplace</h1>
