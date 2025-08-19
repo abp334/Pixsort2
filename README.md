@@ -1,8 +1,6 @@
 # Pixsort - AI-Powered Image Marketplace
 
-<p align="center">
-  <img src="https://i.imgur.com/your_banner_image.png" alt="Pixsort Banner">
-</p>
+
 
 <p align="center">
   <strong>Upload your images, have them automatically categorized by a powerful AI, and sell them on a vibrant, modern marketplace.</strong>
