@@ -49,7 +49,7 @@ Pixsort is a full-stack application built with a modern microservices architectu
 
 | Light Mode | Dark Mode |
 | :---: | :---: |
-| <img src="https://i.imgur.com/your_light_mode_screenshot.png" alt="Light Mode" width="400"> | <img src="https://i.imgur.com/your_dark_mode_screenshot.png" alt="Dark Mode" width="400"> |
+| <a href='https://postimg.cc/CR4mBTDx' target='_blank'><img src='https://i.postimg.cc/CR4mBTDx/temp-Image44-B6-IW.avif' border='0' alt='temp-Image44-B6-IW'/></a> | <a href='https://postimg.cc/jWLPsG49' target='_blank'><img src='https://i.postimg.cc/jWLPsG49/temp-Imaget-Z2s-BN.avif' border='0' alt='temp-Imaget-Z2s-BN'/></a> |
 
 ---
 
