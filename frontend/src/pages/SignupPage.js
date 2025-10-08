@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Spinner from "../components/Spinner"; // Adjust the import path as necessary
+
 const SignupPage = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -27,11 +28,14 @@ const SignupPage = () => {
     setLoading(true);
     setError("");
     try {
-      const { data } = await axios.post("/api/auth/register", {
-        username,
-        email,
-        password,
-      });
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth/register`,
+        {
+          username,
+          email,
+          password,
+        }
+      );
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
       navigate("/my-images");

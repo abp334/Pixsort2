@@ -1,13 +1,15 @@
+// backend/controllers/imageController.js
 const Image = require("../models/Image");
 const Order = require("../models/Order");
 const cloudinary = require("cloudinary").v2;
 const FormData = require("form-data");
 const http = require("http");
 
+// Configure Cloudinary with environment variables
 cloudinary.config({
-  cloud_name: "djejk5rje",
-  api_key: "978639449887691",
-  api_secret: "0HU23M4Ha8AvFGRctxGCu2FyByU",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 exports.uploadImage = async (req, res) => {

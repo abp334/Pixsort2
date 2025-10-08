@@ -17,7 +17,10 @@ const MyImagesPage = () => {
     try {
       const { token } = JSON.parse(localStorage.getItem("userInfo"));
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.get("/api/images", config);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/images`,
+        config
+      );
       setImages(data);
     } catch (err) {
       setError("Could not fetch your images.");
@@ -29,7 +32,11 @@ const MyImagesPage = () => {
     try {
       const { token } = JSON.parse(localStorage.getItem("userInfo"));
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.put(`/api/marketplace/${imageId}/list`, { price }, config);
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/marketplace/${imageId}/list`,
+        { price },
+        config
+      );
       fetchUserImages(); // Refresh list to show updated status
     } catch (err) {
       alert(err.response?.data?.message || "Could not list image for sale.");
@@ -41,7 +48,10 @@ const MyImagesPage = () => {
     try {
       const { token } = JSON.parse(localStorage.getItem("userInfo"));
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`/api/images/${imageId}`, config);
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/api/images/${imageId}`,
+        config
+      );
       fetchUserImages(); // Refresh the list after deletion
     } catch (err) {
       alert(err.response?.data?.message || "Could not delete the image.");

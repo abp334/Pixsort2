@@ -64,7 +64,11 @@ const PaymentPage = () => {
     try {
       const { token } = JSON.parse(localStorage.getItem("userInfo"));
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.post(`/api/marketplace/${imageId}/buy`, {}, config);
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/marketplace/${imageId}/buy`,
+        {},
+        config
+      );
       alert(
         "Mock payment successful! The image has been added to your collection."
       );

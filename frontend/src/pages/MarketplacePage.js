@@ -17,7 +17,7 @@ const MarketplacePage = () => {
     try {
       // --- MODIFIED: Populate the user's ID for ownership check ---
       const { data } = await axios.get(
-        `/api/marketplace/search?query=${searchQuery}`
+        `${process.env.REACT_APP_BACKEND_URL}/api/marketplace/search?query=${searchQuery}`
       );
       setImages(data);
     } catch (err) {
@@ -31,7 +31,7 @@ const MarketplacePage = () => {
       const { token } = JSON.parse(localStorage.getItem("userInfo"));
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.post(
-        `/api/marketplace/${imageId}/buy`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/marketplace/${imageId}/buy`,
         {},
         config
       );
@@ -47,7 +47,10 @@ const MarketplacePage = () => {
     try {
       const { token } = JSON.parse(localStorage.getItem("userInfo"));
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.delete(`/api/marketplace/${imageId}`, config);
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/api/marketplace/${imageId}`,
+        config
+      );
       fetchMarketplaceImages(query); // Refresh the list after deletion
     } catch (err) {
       alert(err.response?.data?.message || "Could not delete the image.");

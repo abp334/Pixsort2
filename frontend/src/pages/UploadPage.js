@@ -47,7 +47,11 @@ const UploadPage = () => {
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.post("/api/images", formData, config);
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/images`,
+        formData,
+        config
+      );
       navigate("/my-images");
     } catch (err) {
       setError(

@@ -41,7 +41,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://127.0.0.1:5001",
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "autoprefixer": "^10.4.21",

@@ -33,7 +33,9 @@ const HomePage = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data } = await axios.get("/api/stats");
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/stats`
+        );
         setStats(data);
       } catch (error) {
         console.error("Could not fetch stats", error);
