@@ -1,208 +1,148 @@
-import sys
-from pathlib import Path
-from typing import List, Set, Dict
+import os
 import json
-
-# Computer Vision and ML
-import cv2
-import numpy as np
 import torch
-import nltk
+import torchvision.transforms as transforms
+from torchvision import models
 from PIL import Image
-from nltk.corpus.reader.wordnet import Synset
+from ultralytics import YOLO
+import nltk
+from nltk.corpus import wordnet
 
-# --- One-time NLTK setup ---
-try:
-    from nltk.corpus import wordnet
+# --- LAZY LOADING SETUP ---
+# Define global variables for the models, but don't load them yet.
+resnet_model = None
+yolo_model = None
+category_map = None
 
-    wordnet.ensure_loaded()
-except LookupError:
-    print("[INFO] First time setup: Downloading WordNet data...")
-    nltk.download("wordnet")
-    from nltk.corpus import wordnet
+# Define the image transformations globally
+preprocess = transforms.Compose(
+    [
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ]
+)
 
-    print("[INFO] WordNet download complete.")
 
-
-# --- Core Functions (Unchanged) ---
-def load_category_map_from_json(file_path: str) -> Dict[str, List[Synset]]:
+def download_nltk_data():
+    """Downloads NLTK data if not already present."""
     try:
-        with open(file_path, "r") as f:
-            json_data = json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Category file not found at '{file_path}'.")
-    except json.JSONDecodeError:
-        raise json.JSONDecodeError(f"Could not parse '{file_path}'.")
-
-    category_map = {}
-    for category, synset_strings in json_data.items():
-        try:
-            category_map[category] = [wordnet.synset(s) for s in synset_strings]
-        except Exception as e:
-            print(
-                f"⚠️ Warning: Could not process synset for category '{category}'. Error: {e}"
-            )
-    print("[INFO] Successfully loaded category map.")
-    return category_map
+        nltk.data.find("corpora/wordnet")
+        print("[INFO] WordNet data already downloaded.")
+    except nltk.downloader.DownloadError:
+        print("[INFO] First time setup: Downloading WordNet data...")
+        nltk.download("wordnet", quiet=True, download_dir="/opt/render/nltk_data")
+        nltk.data.path.append("/opt/render/nltk_data")
+        print("[INFO] WordNet download complete.")
 
 
-def get_hypernym_chain(synset: Synset) -> Set[Synset]:
-    hypernyms = set()
-    for s in synset.hypernyms():
-        hypernyms.update(get_hypernym_chain(s))
-    return hypernyms | {synset}
+def load_models_and_map():
+    """Loads all models and the category map if they haven't been loaded yet."""
+    global resnet_model, yolo_model, category_map
+
+    # Load ResNet model for detailed classification
+    if resnet_model is None:
+        print("[INFO] Loading ResNet model for the first time...")
+        resnet_model = models.resnet152(weights=models.ResNet152_Weights.DEFAULT)
+        resnet_model.eval()
+        print("[INFO] ResNet model loaded.")
+
+    # Load YOLO model for object detection
+    if yolo_model is None:
+        print("[INFO] Loading YOLO model for the first time...")
+        # Path to the model file at the root of the project
+        model_path = os.path.join(os.path.dirname(__file__), "..", "..", "yolov8n.pt")
+        yolo_model = YOLO(model_path)
+        print("[INFO] YOLO model loaded.")
+
+    # Load the category map
+    if category_map is None:
+        print("[INFO] Loading category map for the first time...")
+        map_path = os.path.join(os.path.dirname(__file__), "categories.json")
+        with open(map_path, "r") as f:
+            category_map = json.load(f)
+        print("[INFO] Category map loaded.")
 
 
-def get_general_category(
-    word: str, category_map: Dict[str, List[Synset]]
-) -> str | None:
-    search_word = word.replace(" ", "_")
-    synsets = wordnet.synsets(search_word)
-    if not synsets:
-        return None
-
-    all_hypernyms = get_hypernym_chain(synsets[0])
-    for category_name, trigger_synsets in category_map.items():
-        for trigger in trigger_synsets:
-            if trigger in all_hypernyms:
-                return category_name
-    return None
+def get_synonyms(word):
+    """Gets synonyms for a word using WordNet."""
+    synonyms = set()
+    for syn in wordnet.synsets(word):
+        for lemma in syn.lemmas():
+            synonyms.add(lemma.name().lower())
+    return list(synonyms)
 
 
-# --- Main Application Logic (Called by Django) ---
-def analyze_image_and_categorize(
-    image_path: Path, device: str, category_map: Dict[str, List[Synset]]
-) -> Dict:
+def map_to_overall_category(detected_classes):
+    """Maps detected classes to broader, overall categories using synonyms."""
+    overall_categories = set()
+    for cls in detected_classes:
+        cls_lower = cls.lower()
+        # Direct mapping
+        if cls_lower in category_map:
+            overall_categories.add(category_map[cls_lower])
+            continue
+        # Synonym mapping
+        synonyms = get_synonyms(cls_lower)
+        for synonym in synonyms:
+            if synonym in category_map:
+                overall_categories.add(category_map[synonym])
+                break  # Found a mapping, move to the next class
+
+    return list(overall_categories) if overall_categories else ["Miscellaneous"]
+
+
+def analyze_image_and_categorize(image_bytes):
     """
-    Analyzes an image and RETURNS a dictionary with the results.
+    Main function to analyze an image, get detailed and overall categories.
     """
-    print(f"📸 Processing Image: {image_path.name}")
+    # --- LAZY LOADING TRIGGER ---
+    # This will only run on the first call to this function.
+    download_nltk_data()
+    load_models_and_map()
 
-    detailed_labels = []
-    general_categories = set()
+    try:
+        image = Image.open(image_bytes).convert("RGB")
 
-    image_bgr = load_image_bgr(image_path)
+        # 1. Detailed Classification with ResNet
+        input_tensor = preprocess(image)
+        input_batch = input_tensor.unsqueeze(0)
 
-    run_resnet_as_fallback = False
-    if detect_faces_and_people(image_bgr):
-        yolo_labels = run_yolo_detection(image_path=image_path, device=device)
-        if yolo_labels:
-            detailed_labels = yolo_labels
-            for label in detailed_labels:
-                category = get_general_category(label, category_map)
-                if category:
-                    general_categories.add(category)
-        else:
-            run_resnet_as_fallback = True
-    else:
-        run_resnet_as_fallback = True
+        with torch.no_grad():
+            output = resnet_model(input_batch)
 
-    if run_resnet_as_fallback:
-        top_5_labels = run_resnet_classification(
-            image_path=image_path, device=device, topk=5
+        probabilities = torch.nn.functional.softmax(output[0], dim=0)
+
+        # Fetch ImageNet labels
+        labels_url = (
+            "https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt"
         )
-        if top_5_labels:
-            if not detailed_labels:
-                detailed_labels.append(top_5_labels[0])
-            for label in top_5_labels:
-                category = get_general_category(label, category_map)
-                if category:
-                    general_categories.add(category)
+        if not os.path.exists("imagenet_classes.txt"):
+            torch.hub.download_url_to_file(labels_url, "imagenet_classes.txt")
 
-    # --- FINAL FIX: Return a dictionary instead of printing ---
-    return {
-        "detailed_categories": (
-            sorted(list(set(detailed_labels))) if detailed_labels else ["None found"]
-        ),
-        "overall_categories": (
-            sorted(list(general_categories)) if general_categories else ["None found"]
-        ),
-    }
+        with open("imagenet_classes.txt", "r") as f:
+            categories = [s.strip() for s in f.readlines()]
 
+        top5_prob, top5_catid = torch.topk(probabilities, 5)
+        detailed_categories = [
+            categories[top5_catid[i]] for i in range(top5_prob.size(0))
+        ]
 
-# --- Model and Image Processing Helpers (Unchanged) ---
-class YOOLazyLoader:
-    _model = None
+        # 2. Object Detection and Overall Categorization with YOLO
+        results = yolo_model(image)
+        detected_classes = [results[0].names[int(c)] for c in results[0].boxes.cls]
 
-    @classmethod
-    def get_model(cls):
-        if cls._model is None:
-            from ultralytics import YOLO
+        overall_categories = map_to_overall_category(detected_classes)
 
-            cls._model = YOLO("yolov8n.pt")
-        return cls._model
-
-
-class ResNetLazyLoader:
-    _model = None
-    _preprocess = None
-    _categories = None
-
-    @classmethod
-    def get_model_and_tools(cls):
-        if cls._model is None:
-            from torchvision import models
-            from torchvision.models import ResNet50_Weights
-
-            weights = ResNet50_Weights.DEFAULT
-            cls._model = models.resnet50(weights=weights)
-            cls._model.eval()
-            cls._preprocess = weights.transforms()
-            cls._categories = weights.meta["categories"]
-        return cls._model, cls._preprocess, cls._categories
-
-
-def load_image_bgr(image_path: Path) -> np.ndarray:
-    image = cv2.imdecode(np.fromfile(str(image_path), dtype=np.uint8), cv2.IMREAD_COLOR)
-    if image is None:
-        raise ValueError(f"Failed to load image: {image_path}")
-    return image
-
-
-def detect_faces_and_people(image_bgr: np.ndarray) -> bool:
-    gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    )
-    faces = face_cascade.detectMultiScale(
-        gray, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40)
-    )
-    if len(faces) > 0:
-        return True
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    rects, _ = hog.detectMultiScale(
-        image_bgr, winStride=(4, 4), padding=(8, 8), scale=1.05
-    )
-    return len(rects) > 0
-
-
-def run_yolo_detection(
-    image_path: Path, device: str = "cpu", conf: float = 0.25
-) -> List[str]:
-    model = YOOLazyLoader.get_model()
-    results = model.predict(
-        source=str(image_path), device=device, conf=conf, verbose=False
-    )
-    if not results:
-        return []
-    result = results[0]
-    if not result.boxes:
-        return []
-    names = model.names
-    detected_labels = {names.get(int(box.cls[0]), "unknown") for box in result.boxes}
-    return list(detected_labels)
-
-
-def run_resnet_classification(
-    image_path: Path, device: str = "cpu", topk: int = 5
-) -> List[str]:
-    model, preprocess, categories = ResNetLazyLoader.get_model_and_tools()
-    model.to(device)
-    pil_image = Image.open(image_path).convert("RGB")
-    input_tensor = preprocess(pil_image).unsqueeze(0).to(device)
-    with torch.inference_mode():
-        logits = model(input_tensor)
-        probs = torch.nn.functional.softmax(logits, dim=1)[0]
-    _, topk_idxs = torch.topk(probs, k=topk)
-    return [categories[idx] for idx in topk_idxs.cpu().numpy()]
+        return {
+            "detailed_categories": detailed_categories,
+            "overall_categories": overall_categories,
+        }
+    except Exception as e:
+        print(f"[ERROR] Error during image analysis: {e}")
+        return {
+            "detailed_categories": ["Error"],
+            "overall_categories": ["Error"],
+            "error": str(e),
+        }
