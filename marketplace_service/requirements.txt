@@ -8,3 +8,4 @@ opencv-python-headless==4.8.0.76
 nltk==3.8.1
 Pillow==10.1.0
 numpy==1.26.1
+django-cors-headers==4.3.1
