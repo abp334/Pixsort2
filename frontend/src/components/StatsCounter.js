@@ -1,3 +1,4 @@
+// frontend/src/components/StatsCounter.js
 import React, { useState, useEffect, useRef } from "react";
 
 const StatsCounter = ({ target, label }) => {
@@ -22,7 +23,7 @@ const StatsCounter = ({ target, label }) => {
 
       return () => clearInterval(timer);
     }
-  }, [target, isVisible]);
+  }, [target, isVisible, ref]); // <-- THE FIX IS HERE
 
   return (
     <div ref={ref} className="text-center">
@@ -44,15 +45,16 @@ const useOnScreen = (ref) => {
     const observer = new IntersectionObserver(([entry]) =>
       setIntersecting(entry.isIntersecting)
     );
-    if (ref.current) {
-      observer.observe(ref.current);
+    const currentRef = ref.current; // Capture ref.current to a variable
+    if (currentRef) {
+      observer.observe(currentRef);
     }
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
-  }, []);
+  }, [ref]); // Added ref to the dependency array here as well for consistency
 
   return isIntersecting;
 };
