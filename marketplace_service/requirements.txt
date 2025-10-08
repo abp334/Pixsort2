@@ -74,7 +74,6 @@ ipyplot==1.1.2
 ipython==8.37.0
 itsdangerous==2.2.0
 jax==0.4.30
-jaxlib==0.4.30
 jedi==0.19.2
 Jinja2==3.1.6
 jmespath==1.0.1
