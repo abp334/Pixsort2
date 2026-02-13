@@ -3,6 +3,7 @@
 set -o errexit
 
 # Upgrade pip and install build tools
+cd "$(dirname "$0")"
 pip install --upgrade pip
 pip install setuptools wheel
 
