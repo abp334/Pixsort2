@@ -12,14 +12,15 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements from the subdirectory
-COPY marketplace_service/requirements.txt .
+# Copy the marketplace service directory
+COPY marketplace_service /app/marketplace_service
+
+# Set working directory to the service
+WORKDIR /app/marketplace_service
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install pillow-avif-plugin
-
-# Copy the marketplace service code
-COPY marketplace_service/ .
 
 # Cache dir
 RUN mkdir -p /app/cache

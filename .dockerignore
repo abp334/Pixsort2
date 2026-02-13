@@ -1,0 +1,17 @@
+# Ignore git
+.git
+.gitignore
+
+# Ignore other services
+backend/
+frontend/
+
+# Ignore local envs
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+
+# Ignore node modules if any
+node_modules/
