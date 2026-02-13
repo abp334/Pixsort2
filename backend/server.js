@@ -11,8 +11,19 @@ const { protect } = require("./middleware/authMiddleware");
 
 dotenv.config({ path: __dirname + "/.env" });
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "*", // ALLOW ALL FOR DEBUGGING. In production ideally set to frontend URL.
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
+
+// Increase timeout for image processing
+app.use((req, res, next) => {
+  req.setTimeout(300000); // 5 minutes
+  res.setTimeout(300000);
+  next();
+});
 
 mongoose
   .connect(process.env.MONGO_URI)
