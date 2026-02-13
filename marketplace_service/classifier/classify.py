@@ -1,3 +1,4 @@
+import gc
 import os
 import io
 import json
@@ -9,6 +10,9 @@ from ultralytics import YOLO
 import pillow_avif
 import nltk
 from nltk.corpus import wordnet
+
+# Limit PyTorch threads to reduce overhead on free tier
+torch.set_num_threads(1)
 
 # --- LAZY LOADING SETUP ---
 # Define global variables for the models, but don't load them yet.
@@ -147,6 +151,13 @@ def analyze_image_and_categorize(image_source):
         detected_classes = [results[0].names[int(c)] for c in results[0].boxes.cls]
 
         overall_categories = map_to_overall_category(detected_classes)
+
+        # Explicit cleanup to help memory on free tier
+        del input_tensor
+        del input_batch
+        del output
+        del results
+        gc.collect()
 
         return {
             "detailed_categories": detailed_categories,
