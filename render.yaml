@@ -28,12 +28,16 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.11.0 # Or current LTS
-      - key: PYTHON_API_URL
+      - key: PYTHON_SERVICE_HOST
         fromService:
           type: web
           name: pixsort-marketplace
-          property: url
-          path: /api/classify/
+          property: host
+      - key: PYTHON_SERVICE_PORT
+        fromService:
+          type: web
+          name: pixsort-marketplace
+          property: port
       - key: MONGO_URI
         sync: false # User must provide this in dashboard
       - key: JWT_SECRET

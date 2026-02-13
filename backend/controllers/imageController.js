@@ -31,12 +31,26 @@ exports.uploadImage = async (req, res) => {
     formData.append("image", req.file.buffer, req.file.originalname);
 
     const pythonApiResponse = await new Promise((resolve, reject) => {
-      const url = new URL(process.env.PYTHON_API_URL);
+      let host, port, pathStr;
+      
+      if (process.env.PYTHON_API_URL) {
+          const url = new URL(process.env.PYTHON_API_URL);
+          host = url.hostname;
+          port = url.port;
+          pathStr = url.pathname;
+      } else if (process.env.PYTHON_SERVICE_HOST && process.env.PYTHON_SERVICE_PORT) {
+          host = process.env.PYTHON_SERVICE_HOST;
+          port = process.env.PYTHON_SERVICE_PORT;
+          pathStr = "/api/classify/";
+      } else {
+          return reject(new Error("Missing Python Service connection configuration."));
+      }
+
       const request = formData.submit(
         {
-          host: url.hostname,
-          port: url.port,
-          path: url.pathname,
+          host: host,
+          port: port,
+          path: pathStr,
           method: "POST",
         },
         (err, response) => {
