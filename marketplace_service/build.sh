@@ -8,3 +8,4 @@ pip install setuptools wheel
 
 # Install the dependencies
 pip install -r requirements.txt
+pip install pillow-avif-plugin

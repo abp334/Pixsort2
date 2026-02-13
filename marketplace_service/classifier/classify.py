@@ -1,10 +1,12 @@
 import os
+import io
 import json
 import torch
 import torchvision.transforms as transforms
 from torchvision import models
 from PIL import Image
 from ultralytics import YOLO
+import pillow_avif
 import nltk
 from nltk.corpus import wordnet
 
@@ -30,10 +32,9 @@ def download_nltk_data():
     try:
         nltk.data.find("corpora/wordnet")
         print("[INFO] WordNet data already downloaded.")
-    except nltk.downloader.DownloadError:
+    except LookupError:
         print("[INFO] First time setup: Downloading WordNet data...")
-        nltk.download("wordnet", quiet=True, download_dir="/opt/render/nltk_data")
-        nltk.data.path.append("/opt/render/nltk_data")
+        nltk.download("wordnet", quiet=True)
         print("[INFO] WordNet download complete.")
 
 
@@ -79,23 +80,28 @@ def map_to_overall_category(detected_classes):
     overall_categories = set()
     for cls in detected_classes:
         cls_lower = cls.lower()
-        # Direct mapping
-        if cls_lower in category_map:
-            overall_categories.add(category_map[cls_lower])
-            continue
-        # Synonym mapping
+    for cls in detected_classes:
+        cls_lower = cls.lower()
+        # Iterate over all categories and their mapped keywords
+        for category, keywords in category_map.items():
+            if cls_lower in keywords:
+                overall_categories.add(category)
+        
+        # Keep synonym mapping as backup/enhancement
         synonyms = get_synonyms(cls_lower)
         for synonym in synonyms:
-            if synonym in category_map:
-                overall_categories.add(category_map[synonym])
-                break  # Found a mapping, move to the next class
+             for category, keywords in category_map.items():
+                if synonym in keywords:
+                    overall_categories.add(category)
 
     return list(overall_categories) if overall_categories else ["Miscellaneous"]
 
 
-def analyze_image_and_categorize(image_bytes):
+def analyze_image_and_categorize(image_source):
     """
     Main function to analyze an image, get detailed and overall categories.
+    Args:
+        image_source: File path or file-like object (e.g. BytesIO)
     """
     # --- LAZY LOADING TRIGGER ---
     # This will only run on the first call to this function.
@@ -103,7 +109,14 @@ def analyze_image_and_categorize(image_bytes):
     load_models_and_map()
 
     try:
-        image = Image.open(image_bytes).convert("RGB")
+        # Check if input is bytes, if so wrap in BytesIO
+        if isinstance(image_source, bytes):
+            print(f"[DEBUG] classify.py received {len(image_source)} bytes")
+            image_source = io.BytesIO(image_source)
+        else:
+            print(f"[DEBUG] classify.py received {type(image_source)}")
+            
+        image = Image.open(image_source).convert("RGB")
 
         # 1. Detailed Classification with ResNet
         input_tensor = preprocess(image)

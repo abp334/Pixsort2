@@ -5,7 +5,7 @@ from rest_framework.parsers import MultiPartParser
 from pathlib import Path
 import tempfile
 
-from .classify import analyze_image_and_categorize, load_category_map_from_json
+from .classify import analyze_image_and_categorize
 
 BASE_DIR = Path(__file__).resolve().parent
 CATEGORIES_PATH = BASE_DIR / "categories.json"
@@ -24,19 +24,15 @@ class ClassifyImageView(APIView):
         image_file = request.FILES["image"]
 
         try:
-            with tempfile.NamedTemporaryFile(delete=True, suffix=".jpg") as temp_file:
-                for chunk in image_file.chunks():
-                    temp_file.write(chunk)
-                temp_file.flush()
+            image_content = image_file.read()
+            print(f"[DEBUG] Received image content size: {len(image_content)} bytes")
+            if len(image_content) > 16:
+                 print(f"[DEBUG] Header bytes: {image_content[:16].hex()}")
+            
+            # Call the analysis function with bytes
+            results = analyze_image_and_categorize(image_content)
 
-                temp_image_path = Path(temp_file.name)
-                category_map = load_category_map_from_json(str(CATEGORIES_PATH))
-
-                results = analyze_image_and_categorize(
-                    image_path=temp_image_path, device="cpu", category_map=category_map
-                )
-
-                return Response(results, status=status.HTTP_200_OK)
+            return Response(results, status=status.HTTP_200_OK)
 
         except Exception as e:
             error_message = f"An error occurred during image analysis: {str(e)}"

@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-e-4p=i$=qr!3sa_yek^%*e(af!&alhwrka*hr4h%#2o!s_p(sn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["pixsort-ai-service.onrender.com"]
+ALLOWED_HOSTS = ["pixsort-ai-service.onrender.com", "localhost", "127.0.0.1"]
 
 
 # Application definition

@@ -2,6 +2,8 @@
 const Image = require("../models/Image");
 const Order = require("../models/Order");
 const cloudinary = require("cloudinary").v2;
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const FormData = require("form-data");
 const http = require("http");
 
@@ -18,6 +20,13 @@ exports.uploadImage = async (req, res) => {
   }
 
   try {
+    console.log(`[DEBUG] Backend received file: ${req.file.originalname}, Size: ${req.file.size} bytes, Mime: ${req.file.mimetype}`);
+    
+    if (!req.file.buffer || req.file.buffer.length === 0) {
+      console.error("[ERROR] File buffer is empty!");
+      return res.status(400).json({ message: "Uploaded file is empty." });
+    }
+
     const formData = new FormData();
     formData.append("image", req.file.buffer, req.file.originalname);
 
