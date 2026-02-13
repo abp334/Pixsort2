@@ -11,17 +11,17 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements.txt .
+# Copy requirements from the subdirectory
+COPY marketplace_service/requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install pillow-avif-plugin
 
-# Copy the rest of the application
-COPY . .
+# Copy the marketplace service code
+COPY marketplace_service/ .
 
-# Create a clear cache directory for Hugging Face
+# Cache dir
 RUN mkdir -p /app/cache
 ENV XDG_CACHE_HOME=/app/cache
 
