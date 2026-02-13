@@ -1,0 +1,46 @@
+services:
+  # 1. Marketplace Service (Python/Django)
+  - type: web
+    name: pixsort-marketplace
+    runtime: python
+    region: oregon # or closer to user
+    plan: free
+    buildCommand: ./marketplace_service/build.sh
+    startCommand: cd marketplace_service && gunicorn marketplace_service.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*" # Update to frontend domain later
+
+  # 2. Backend (Node.js)
+  - type: web
+    name: pixsort-backend
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0 # Or current LTS
+      - key: PYTHON_API_URL
+        fromService:
+          type: web
+          name: pixsort-marketplace
+          property: url
+          path: /api/classify/
+      - key: MONGO_URI
+        sync: false # User must provide this in dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
