@@ -6,6 +6,7 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const FormData = require("form-data");
 const http = require("http");
+const axios = require("axios");
 
 // Configure Cloudinary with environment variables
 cloudinary.config({
@@ -30,66 +31,39 @@ exports.uploadImage = async (req, res) => {
     const formData = new FormData();
     formData.append("image", req.file.buffer, req.file.originalname);
 
-    const pythonApiResponse = await new Promise((resolve, reject) => {
-      let host, port, pathStr;
-      
-      if (process.env.PYTHON_API_URL) {
-          const url = new URL(process.env.PYTHON_API_URL);
-          host = url.hostname;
-          port = url.port;
-          pathStr = url.pathname;
-      } else if (process.env.PYTHON_SERVICE_HOST && process.env.PYTHON_SERVICE_PORT) {
-          host = process.env.PYTHON_SERVICE_HOST;
-          port = process.env.PYTHON_SERVICE_PORT;
-          pathStr = "/api/classify/";
-      } else {
-          return reject(new Error("Missing Python Service connection configuration."));
-      }
+    let pythonServiceUrl;
+    if (process.env.PYTHON_API_URL) {
+      pythonServiceUrl = process.env.PYTHON_API_URL;
+    } else if (process.env.PYTHON_SERVICE_HOST && process.env.PYTHON_SERVICE_PORT) {
+      // Default to http, but axios will follow redirect if needed (though 307 preserves method, axios might need config to follow POST)
+      // Actually 307 requires re-sending body. Axios does this automatically for 307.
+      // However, if we are internal, we usually talk http.
+      // If Render forces HTTPS, we should start with https if port is 443.
+      const protocol = process.env.PYTHON_SERVICE_PORT === '443' ? 'https' : 'http';
+      pythonServiceUrl = `${protocol}://${process.env.PYTHON_SERVICE_HOST}:${process.env.PYTHON_SERVICE_PORT}/api/classify/`;
+    } else {
+      throw new Error("Missing Python Service connection configuration.");
+    }
 
-      const request = formData.submit(
-        {
-          host: host,
-          port: port,
-          path: pathStr,
-          method: "POST",
-        },
-        (err, response) => {
-          if (err) return reject(err);
-          let responseBody = "";
-          response.setEncoding("utf8");
-          response.on("data", (chunk) => {
-            responseBody += chunk;
-          });
-          response.on("end", () => {
-            console.log(`[DEBUG] Python Service Response Status: ${response.statusCode}`);
-            try {
-              if (response.statusCode === 0) {
-                 // Connection closed or special case
-                 throw new Error("Connection closed with no status.");
-              }
-              const parsedBody = JSON.parse(responseBody);
-              if (response.statusCode < 200 || response.statusCode >= 300) {
-                reject({
-                  response: { data: parsedBody, status: response.statusCode },
-                });
-              } else {
-                resolve(parsedBody);
-              }
-            } catch (e) {
-              console.error(`[ERROR] Failed to parse body: '${responseBody}'`);
-              reject(
-                new Error(
-                  `Failed to parse Python service response (Status: ${response.statusCode}): ${responseBody || '<Empty Body>'}`
-                )
-              );
-            }
-          });
-        }
-      );
-      request.on("error", (err) => reject(err));
+    console.log(`[DEBUG] Python Service URL: ${pythonServiceUrl}`);
+
+    const pythonResponse = await axios.post(pythonServiceUrl, formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      validateStatus: (status) => status < 500, // Handle 4xx gracefully
     });
+    
+    console.log(`[DEBUG] Python Service Response Status: ${pythonResponse.status}`);
+    
+    if (pythonResponse.status >= 300) {
+       console.error(`[ERROR] Python Service returned error:`, pythonResponse.data);
+       throw new Error(`Python service failed with status ${pythonResponse.status}`);
+    }
 
-    const { detailed_categories, overall_categories } = pythonApiResponse;
+    const { detailed_categories, overall_categories } = pythonResponse.data;
 
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
