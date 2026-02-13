@@ -31,6 +31,10 @@ exports.uploadImage = async (req, res) => {
     const formData = new FormData();
     formData.append("image", req.file.buffer, req.file.originalname);
 
+    console.log(`[DEBUG] Env Vars - PYTHON_API_URL: ${process.env.PYTHON_API_URL || 'Not Set'}`);
+    console.log(`[DEBUG] Env Vars - PYTHON_SERVICE_HOST: ${process.env.PYTHON_SERVICE_HOST || 'Not Set'}`);
+    console.log(`[DEBUG] Env Vars - PYTHON_SERVICE_PORT: ${process.env.PYTHON_SERVICE_PORT || 'Not Set'}`);
+
     let pythonServiceUrl;
     if (process.env.PYTHON_API_URL) {
       pythonServiceUrl = process.env.PYTHON_API_URL;
@@ -42,7 +46,7 @@ exports.uploadImage = async (req, res) => {
       const protocol = process.env.PYTHON_SERVICE_PORT === '443' ? 'https' : 'http';
       pythonServiceUrl = `${protocol}://${process.env.PYTHON_SERVICE_HOST}:${process.env.PYTHON_SERVICE_PORT}/api/classify/`;
     } else {
-      throw new Error("Missing Python Service connection configuration.");
+      throw new Error("Missing Python Service connection configuration. Check if 'pixsort-marketplace' service is running.");
     }
 
     console.log(`[DEBUG] Python Service URL: ${pythonServiceUrl}`);
