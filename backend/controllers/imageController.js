@@ -61,7 +61,12 @@ exports.uploadImage = async (req, res) => {
             responseBody += chunk;
           });
           response.on("end", () => {
+            console.log(`[DEBUG] Python Service Response Status: ${response.statusCode}`);
             try {
+              if (response.statusCode === 0) {
+                 // Connection closed or special case
+                 throw new Error("Connection closed with no status.");
+              }
               const parsedBody = JSON.parse(responseBody);
               if (response.statusCode < 200 || response.statusCode >= 300) {
                 reject({
@@ -71,9 +76,10 @@ exports.uploadImage = async (req, res) => {
                 resolve(parsedBody);
               }
             } catch (e) {
+              console.error(`[ERROR] Failed to parse body: '${responseBody}'`);
               reject(
                 new Error(
-                  `Failed to parse Python service response: ${responseBody}`
+                  `Failed to parse Python service response (Status: ${response.statusCode}): ${responseBody || '<Empty Body>'}`
                 )
               );
             }
